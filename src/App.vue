@@ -1,8 +1,6 @@
 <template>
   <div id="app">
-    <div class="gallery">
-      <Gallery />
-    </div>
+    <Gallery />
     <div class="input-area">
       <UserNameForm />
       <div class="drawing-area">
@@ -13,7 +11,7 @@
 </template>
 
 <script>
-import UserNameForm from "./components/UserNameForm.vue";
+import UserNameForm from "./components/usernameform.vue";
 import CanvasBoard from "./components/CanvasBoard.vue";
 import Gallery from "./components/Gallery.vue";
 
@@ -40,11 +38,6 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
-}
-
-.gallery {
-  flex-grow: 1;
-  overflow-y: auto; /* ここでスクロールを許可 */
 }
 
 .drawing-area {

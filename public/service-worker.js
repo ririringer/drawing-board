@@ -5,6 +5,6 @@ self.addEventListener("install", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  console.log("Fetching:", event.request.url);
+  // console.log("Fetching:", event.request.url);
   // ここでキャッシュからファイルを提供するロジックを実装する
 });

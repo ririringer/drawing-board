@@ -1,6 +1,12 @@
 <template>
-  <div class="gallery">
-    <img v-for="url in imageUrls" :key="url" :src="url" class="image" />
+  <div class="gallery" ref="gallery">
+    <img
+      v-for="url in imageUrls"
+      :key="url"
+      :src="url"
+      class="image"
+      @load="onImageLoad"
+    />
   </div>
 </template>
 
@@ -19,7 +25,23 @@ export default {
   data() {
     return {
       imageUrls: [],
+      gallery: null,
     };
+  },
+  methods: {
+    onImageLoad() {
+      this.loadedImages++;
+      this.scrollToBottom();
+    },
+    scrollToBottom() {
+      this.$nextTick(() => {
+        console.log("scrolled");
+        if (this.$refs.gallery) {
+          console.log(this.$refs.gallery.scrollHeight);
+          this.$refs.gallery.scrollTo(0, this.$refs.gallery.scrollHeight);
+        }
+      });
+    },
   },
   async created() {
     const q = query(
@@ -30,14 +52,21 @@ export default {
 
     // Firestoreの更新を監視
     onSnapshot(q, (snapshot) => {
-      this.imageUrls = snapshot.docs.map((doc) => doc.data().url);
+      this.imageUrls = snapshot.docs.map((doc) => doc.data().url).reverse();
+      this.loadedImages = 0;
     });
-    // this.imageUrls = await fetchImages();
+  },
+  mounted() {
+    this.scrollToBottom();
   },
 };
 </script>
 
 <style>
+.gallery {
+  flex-grow: 1;
+  overflow-y: auto; /* ここでスクロールを許可 */
+}
 .image {
   /* 画像スタイル */
   border: solid;
