@@ -24,3 +24,4 @@ jobs:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_DRAWING_BOARD_B1D22 }}"
           projectId: drawing-board-b1d22
+          channelId: ""
