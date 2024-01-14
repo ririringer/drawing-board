@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import UserNameForm from "./components/usernameform.vue";
+import UserNameForm from "./components/UserNameForm.vue";
 import CanvasBoard from "./components/CanvasBoard.vue";
 import Gallery from "./components/Gallery.vue";
 
