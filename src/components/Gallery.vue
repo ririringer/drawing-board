@@ -38,9 +38,6 @@ export default {
 </script>
 
 <style>
-.gallery {
-  /* ギャラリースタイル */
-}
 .image {
   /* 画像スタイル */
   border: solid;
