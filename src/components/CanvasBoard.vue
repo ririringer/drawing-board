@@ -5,6 +5,9 @@
     @mousemove="draw"
     @mouseup="stopDrawing"
     @mouseout="stopDrawing"
+    @touchstart="startDrawing"
+    @touchmove="draw"
+    @touchend="stopDrawing"
   ></canvas>
   <button class="send-button" @click="sendDrawing">送信</button>
 </template>
@@ -25,10 +28,10 @@ export default {
   mounted() {
     this.canvas = this.$refs.canvas;
     this.setCanvasSize();
-    window.addEventListener("resize", () => this.setCanvasSize());
+    window.addevtListener("resize", () => this.setCanvasSize());
   },
   beforeUnmount() {
-    window.removeEventListener("resize", this.setCanvasSize);
+    window.removeevtListener("resize", this.setCanvasSize);
   },
   methods: {
     setCanvasSize() {
@@ -49,6 +52,8 @@ export default {
       };
     },
     startDrawing(evt) {
+      // タッチイベントの場合、最初のタッチポイントを取得
+      if (evt.touches) evt = evt.touches[0];
       this.drawing = true;
       this.context.beginPath();
       const pos = this.getMousePos(this.$refs.canvas, evt);
@@ -56,6 +61,7 @@ export default {
     },
     draw(evt) {
       if (!this.drawing) return;
+      if (evt.touches) evt = evt.touches[0];
       const pos = this.getMousePos(this.$refs.canvas, evt);
       this.context.lineTo(pos.x, pos.y);
       this.context.stroke();
