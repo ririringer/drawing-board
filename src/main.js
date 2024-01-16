@@ -21,36 +21,31 @@ function subscribeDeviceToTopic(token) {
     });
 }
 
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("/service-worker.js")
-      .then((registration) => {
-        console.log("SW registered: ", registration);
-      })
-      .catch((registrationError) => {
-        console.log("SW registration failed: ", registrationError);
-      });
-    navigator.serviceWorker.register("/firebase-messaging-sw.js").then(() => {
+navigator.serviceWorker
+  .register("/service-worker.js")
+  .then((registration) => {
+    console.log("SW registered: ", registration);
+
+    // トークン取得とサブスクリプション処理をここで行います
+    navigator.serviceWorker.ready.then(() => {
       getToken(messaging, {
         vapidKey:
-          "BH8GZqS8nQ__4pSOkTXit4sQcuSAHItUDr7xEWn_qeUf0SK3QOsCK0bYnC0ajh0-NoM6jmjm_eV8XrnvTsJe9is",
+          "BH8GZqS8nQ__4pSOkTXit4sQcuSAHItUDr7xEWn_qeUf0SK3QOsCK0bYnC0ajh0-NoM6jmjm_eV8XrnvTsJe9is", // VAPIDキーを適切に設定
       })
         .then((currentToken) => {
           if (currentToken) {
             console.log("token:", currentToken);
             subscribeDeviceToTopic(currentToken);
-            // Send the token to your server and update the UI if necessary
-            // ...
           } else {
-            // Show permission request UI
             console.log(
               "No registration token available. Request permission to generate one."
             );
             console.log("Requesting permission...");
+
             Notification.requestPermission().then((permission) => {
               if (permission === "granted") {
                 console.log("Notification permission granted.");
+
                 navigator.serviceWorker.ready.then((p) => {
                   p.pushManager.getSubscription().then((subscription) => {
                     if (subscription === null) {
@@ -66,11 +61,12 @@ if ("serviceWorker" in navigator) {
           }
         })
         .catch((err) => {
-          console.log("An error occurred while retrieving token. ", err);
-          // ...
+          console.error("An error occurred while retrieving token. ", err);
         });
     });
+  })
+  .catch((registrationError) => {
+    console.log("SW registration failed: ", registrationError);
   });
-}
 
 createApp(App).use(router).mount("#app");
