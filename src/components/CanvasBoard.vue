@@ -28,13 +28,14 @@ export default {
   mounted() {
     this.canvas = this.$refs.canvas;
     this.setCanvasSize();
-    window.addevtListener("resize", () => this.setCanvasSize());
+    window.addEventListener("resize", () => this.setCanvasSize());
   },
   beforeUnmount() {
-    window.removeevtListener("resize", this.setCanvasSize);
+    window.removeEventListener("resize", this.setCanvasSize);
   },
   methods: {
     setCanvasSize() {
+      console.log("setCaaaa");
       // 実際の表示サイズに基づいてキャンバスサイズを設定
       const style = window.getComputedStyle(this.canvas);
       this.canvas.width = parseInt(style.width, 10);
@@ -43,6 +44,8 @@ export default {
       this.context = this.canvas.getContext("2d");
       this.canvasOffsetX = this.canvas.offsetLeft;
       this.canvasOffsetY = this.canvas.offsetTop;
+      console.log("this.context");
+      console.log(this.context);
     },
     getMousePos(canvas, evt) {
       // イベント座標をキャンバス座標に変換
@@ -55,6 +58,8 @@ export default {
       // タッチイベントの場合、最初のタッチポイントを取得
       if (evt.touches) evt = evt.touches[0];
       this.drawing = true;
+      console.log("beginpath called");
+      console.log(this.context);
       this.context.beginPath();
       const pos = this.getMousePos(this.$refs.canvas, evt);
       this.context.moveTo(pos.x, pos.y);
@@ -73,6 +78,7 @@ export default {
     sendDrawing() {
       this.canvas.toBlob(async (blob) => {
         await postImages(blob);
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
       }, "image/png");
     },
   },
