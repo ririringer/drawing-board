@@ -24,25 +24,30 @@ firebase.initializeApp({
     "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-f9p2g%40drawing-board-b1d22.iam.gserviceaccount.com",
   universe_domain: "googleapis.com",
 });
+
+console.log("test1");
 const messaging = firebase.messaging();
+console.log("test2");
 
-messaging.onBackgroundMessage((payload) => {
-  console.log(
-    "[firebase-messaging-sw.js] Received background message ",
-    payload
-  );
-  // Customize notification here
-  const notificationTitle = "Background Message Title";
-  const notificationOptions = {
-    body: "Background Message body.",
-    icon: "/keijiban_harigami_192x192.png",
-  };
-  console.log(self.registration);
+messaging
+  .onBackgroundMessage((payload) => {
+    console.log(
+      "[firebase-messaging-sw.js] Received background message ",
+      payload
+    );
+    // Customize notification here
+    const notificationTitle = "Background Message Title";
+    const notificationOptions = {
+      body: "Background Message body.",
+      icon: "/keijiban_harigami_192x192.png",
+    };
+    console.log(self.registration);
 
-  self.registration
-    .showNotification(notificationTitle, notificationOptions)
-    .then((e) => console.log("push notification:", e));
-});
+    self.registration
+      .showNotification(notificationTitle, notificationOptions)
+      .then((e) => console.log("push notification:", e));
+  })
+  .catch((e) => console.log(e));
 
 // service-worker.js
 self.addEventListener("install", (event) => {
