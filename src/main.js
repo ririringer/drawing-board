@@ -3,7 +3,7 @@ import App from "./App.vue";
 import router from "./router";
 
 navigator.serviceWorker
-  .register("/service-worker.js")
+  .register("/firebase-messaging-sw.js")
   .then((registration) => {
     console.log("SW registered: ", registration);
   })
