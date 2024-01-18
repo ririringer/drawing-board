@@ -2,7 +2,7 @@
   <div id="app">
     <Gallery />
     <div class="input-area">
-      <UserNameForm />
+      <NotificationButton />
       <div class="drawing-area">
         <CanvasBoard />
       </div>
@@ -11,16 +11,16 @@
 </template>
 
 <script>
-import UserNameForm from "./components/UserNameForm.vue";
 import CanvasBoard from "./components/CanvasBoard.vue";
 import Gallery from "./components/Gallery.vue";
+import NotificationButton from "./components/NotificationButton.vue";
 
 export default {
   name: "App",
   components: {
-    UserNameForm,
     CanvasBoard,
     Gallery,
+    NotificationButton,
   },
 };
 </script>
