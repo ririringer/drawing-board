@@ -11,36 +11,24 @@ navigator.serviceWorker
     console.log("SW registration failed: ", registrationError);
   });
 
-// アプリ内のどこかをタップしたときにバッジを消す
-window.addEventListener("touchstart", async (event) => {
-  console.log("touchstart pushed");
-  if ("setAppBadge" in navigator) {
-    navigator.setAppBadge(0);
-
-    const cache = await caches.open(CACHE_NAME);
-    const updatedContent = new Blob([JSON.stringify({ count })], {
-      type: "application/json",
-    });
-    await cache.put(BADGE_COUNT_URL, new Response(updatedContent));
-  }
-});
-
-// アプリ内のどこかをタップしたときにバッジを消す
-window.addEventListener("mousedown", (event) => {
-  console.log("mousedown pushed");
-  if ("setAppBadge" in navigator) {
-    navigator.setAppBadge(0);
-  }
-});
-
-window.addEventListener("focus", () => {
-  console.log("focus fired");
-});
-
-document.addEventListener("visibilitychange", () => {
+document.addEventListener("visibilitychange", async () => {
   if (document.visibilityState === "visible") {
     console.log("changeVisibility fired");
+
+    if ("setAppBadge" in navigator) {
+      navigator.setAppBadge(0);
+      await changeCacheBadgeCount(0);
+    }
   }
 });
+
+async function changeCacheBadgeCount(count) {
+  const CACHE_NAME = "app-state-cache";
+  const cache = await caches.open(CACHE_NAME);
+  const updatedContent = new Blob([JSON.stringify({ count })], {
+    type: "application/json",
+  });
+  await cache.put(BADGE_COUNT_URL, new Response(updatedContent));
+}
 
 createApp(App).use(router).mount("#app");
