@@ -80,10 +80,3 @@ messaging.onBackgroundMessage(async (payload) => {
     }
   }
 });
-
-// アプリ内のどこかをタップしたときにバッジを消す
-self.addEventListener("touchstart", (event) => {
-  if ("setAppBadge" in navigator) {
-    navigator.setAppBadge(0);
-  }
-});
