@@ -32,24 +32,6 @@ console.log("test1");
 const messaging = firebase.messaging();
 console.log("test2");
 
-messaging.onBackgroundMessage((payload) => {
-  console.log(
-    "[firebase-messaging-sw.js] Received background message ",
-    payload
-  );
-  // Customize notification here
-  const notificationTitle = "Background Message Title";
-  const notificationOptions = {
-    body: "Background Message body.",
-    icon: "/keijiban_harigami_192x192.png",
-  };
-  console.log(self.registration);
-
-  self.registration
-    .showNotification(notificationTitle, notificationOptions)
-    .then((e) => console.log("push notification:", e));
-});
-
 // service-worker.js
 self.addEventListener("install", (event) => {
   console.log("Service worker installing...");
