@@ -24,6 +24,7 @@ document.addEventListener("visibilitychange", async () => {
 
 async function changeCacheBadgeCount(count) {
   const CACHE_NAME = "app-state-cache";
+  const BADGE_COUNT_URL = "/badge-count.json";
   const cache = await caches.open(CACHE_NAME);
   const updatedContent = new Blob([JSON.stringify({ count })], {
     type: "application/json",
