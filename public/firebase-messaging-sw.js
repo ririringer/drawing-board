@@ -1,5 +1,5 @@
 const NAME = 'firebase-messaging-sw_';
-const VERSION = '009';
+const VERSION = '011';
 const CACHE_NAME = NAME + VERSION;
 const contentToCache = [
   "/",
@@ -61,12 +61,11 @@ messaging.onBackgroundMessage((payload) => {
 self.addEventListener("install", (event) => {
   console.log("Service worker installing...");
   // キャッシュの初期化
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log("[Service Worker] Caching all: app shell and content");
-      return cache.addAll(contentToCache);
-    }),
-  );
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME)
+    console.log("[Service Worker] Caching all: app shell and content");
+    return cache.addAll(contentToCache);
+  })());
 });
 
 self.addEventListener("fetch", (event) => {
@@ -94,18 +93,17 @@ self.addEventListener("fetch", (event) => {
 
 self.addEventListener("activate", (event) => {
   console.log("Service worker activating...");
-  event.waitUntil(
-    caches.keys().then((keyList) => {
-      return Promise.all(
-        keyList.map((key) => {
-          if (key !== CACHE_NAME) {
-            console.log("[Service Worker] delete unused cash: " + key);
-            return caches.delete(key);
-          }
-        }),
-      );
-    }),
-  );
+  event.waitUntil((async () => {
+    const keyList = await caches.keys()
+    return Promise.all(
+      keyList.map((key) => {
+        if (key !== CACHE_NAME) {
+          console.log("[Service Worker] delete unused cash: " + key);
+          return caches.delete(key);
+        }
+      }),
+    );
+  })());
 });
 
 // self.addEventListener("push", (event) => {
