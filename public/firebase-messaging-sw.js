@@ -1,3 +1,10 @@
+const NAME = 'firebase-messaging-sw_';
+const VERSION = '009';
+const CACHE_NAME = NAME + VERSION;
+const contentToCache = [
+  "/",
+];
+
 importScripts("https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js");
 importScripts(
   "https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"
@@ -53,12 +60,52 @@ messaging.onBackgroundMessage((payload) => {
 // service-worker.js
 self.addEventListener("install", (event) => {
   console.log("Service worker installing...");
-  // ここでキャッシュの初期化などを行う
+  // キャッシュの初期化
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log("[Service Worker] Caching all: app shell and content");
+      return cache.addAll(contentToCache);
+    }),
+  );
 });
 
 self.addEventListener("fetch", (event) => {
-  // console.log("Fetching:", event.request.url);
-  // ここでキャッシュからファイルを提供するロジックを実装する
+  event.respondWith((async () => {
+    const cachedResponse = await caches.match(event.request);
+    if (cachedResponse) {
+      console.log("[Service Worker] Return from cash: " + event.request.url);
+      return cachedResponse;
+    }
+
+    const response = await fetch(event.request).catch((error) => {
+      console.error(`[Service Worker] Fetching failed: ${error}`);
+    });
+    if (event.request.method != 'GET') {
+      console.log("[Service Worker] Cache is not used for any method other than the GET. the method for this request: " + event.request.method);
+    } else {
+      const cache = await caches.open(CACHE_NAME);
+      await cache.put(event.request, response.clone()).catch(e=>{
+        console.error("[Service Worker] Failed cashing: " + response);
+      });
+    }
+    return response
+  })());
+});
+
+self.addEventListener("activate", (event) => {
+  console.log("Service worker activating...");
+  event.waitUntil(
+    caches.keys().then((keyList) => {
+      return Promise.all(
+        keyList.map((key) => {
+          if (key !== CACHE_NAME) {
+            console.log("[Service Worker] delete unused cash: " + key);
+            return caches.delete(key);
+          }
+        }),
+      );
+    }),
+  );
 });
 
 // self.addEventListener("push", (event) => {
