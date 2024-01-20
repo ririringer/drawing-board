@@ -67,10 +67,6 @@ messaging.onBackgroundMessage(async (payload) => {
     return data.count;
   }
 
-  console.log(
-    "setAppBadge in self.navigator:",
-    "setAppBadge" in self.navigator
-  );
   if ("setAppBadge" in self.navigator) {
     try {
       const currentCount = await getBadgeCount();
@@ -82,5 +78,12 @@ messaging.onBackgroundMessage(async (payload) => {
     } catch (error) {
       console.error("Error updating app badge:", error);
     }
+  }
+});
+
+// アプリ内のどこかをタップしたときにバッジを消す
+self.addEventListener("touchstart", (event) => {
+  if ("setAppBadge" in navigator) {
+    navigator.setAppBadge(0);
   }
 });
