@@ -1,6 +1,6 @@
-const NAME = 'firebase-messaging-sw_';
-const VERSION = '011';
-const CACHE_NAME = NAME + VERSION;
+const FETCH_CACHE_PREFIX = 'firebase-messaging-sw_'
+const FETCH_CACHE_VERSION = '013';
+const FETCH_CACHE_NAME = FETCH_CACHE_PREFIX + FETCH_CACHE_VERSION;
 const contentToCache = [
   "/",
 ];
@@ -44,17 +44,17 @@ self.addEventListener("install", (event) => {
   console.log("Service worker installing...");
   // キャッシュの初期化
   event.waitUntil((async () => {
-    const cache = await caches.open(CACHE_NAME)
+    const cache = await caches.open(FETCH_CACHE_NAME)
     console.log("[Service Worker] Caching all: app shell and content");
     return cache.addAll(contentToCache);
   })());
 });
 
 self.addEventListener("fetch", (event) => {
-  event.respondWith((async () => {
-    // GET 以外のリクエストでは、ブラウザーに既定のことをさせる
-    if (event.request.method !== "GET") return;
+  // GET 以外のリクエストでは、ブラウザーに既定のことをさせる
+  if (event.request.method !== "GET") return;
 
+  event.respondWith((async () => {
     const cachedResponse = await caches.match(event.request);
     if (cachedResponse) {
       console.log("[Service Worker] Return from cash: " + event.request.url);
@@ -64,7 +64,7 @@ self.addEventListener("fetch", (event) => {
     const response = await fetch(event.request).catch((error) => {
       console.error(`[Service Worker] Fetching failed: ${error}`);
     });
-    const cache = await caches.open(CACHE_NAME);
+    const cache = await caches.open(FETCH_CACHE_NAME);
     await cache.put(event.request, response.clone()).catch(e=>{
       console.error("[Service Worker] Failed cashing: " + response);
     });
@@ -78,7 +78,7 @@ self.addEventListener("activate", (event) => {
     const keyList = await caches.keys()
     return Promise.all(
       keyList.map((key) => {
-        if (key !== CACHE_NAME) {
+        if (key.startsWith(FETCH_CACHE_PREFIX) && key !== FETCH_CACHE_NAME) {
           console.log("[Service Worker] delete unused cash: " + key);
           return caches.delete(key);
         }
@@ -92,11 +92,11 @@ messaging.onBackgroundMessage(async (payload) => {
     "[firebase-messaging-sw.js] Received background message ",
     payload
   );
-  const CACHE_NAME = "app-state-cache";
+  const BADGE_COUNT_CACHE_NAME = "app-state-cache";
   const BADGE_COUNT_URL = "/badge-count.json";
 
   async function saveBadgeCount(count) {
-    const cache = await caches.open(CACHE_NAME);
+    const cache = await caches.open(BADGE_COUNT_CACHE_NAME);
     const updatedContent = new Blob([JSON.stringify({ count })], {
       type: "application/json",
     });
@@ -104,7 +104,7 @@ messaging.onBackgroundMessage(async (payload) => {
   }
 
   async function getBadgeCount() {
-    const cache = await caches.open(CACHE_NAME);
+    const cache = await caches.open(BADGE_COUNT_CACHE_NAME);
     const response = await cache.match(BADGE_COUNT_URL);
     if (!response) return 0; // キャッシュが存在しない場合は0を返す
     const data = await response.json();
