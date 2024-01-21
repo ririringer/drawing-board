@@ -70,6 +70,9 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("fetch", (event) => {
   event.respondWith((async () => {
+    // GET 以外のリクエストでは、ブラウザーに既定のことをさせる
+    if (event.request.method !== "GET") return;
+
     const cachedResponse = await caches.match(event.request);
     if (cachedResponse) {
       console.log("[Service Worker] Return from cash: " + event.request.url);
@@ -79,14 +82,10 @@ self.addEventListener("fetch", (event) => {
     const response = await fetch(event.request).catch((error) => {
       console.error(`[Service Worker] Fetching failed: ${error}`);
     });
-    if (event.request.method != 'GET') {
-      console.log("[Service Worker] Cache is not used for any method other than the GET. the method for this request: " + event.request.method);
-    } else {
-      const cache = await caches.open(CACHE_NAME);
-      await cache.put(event.request, response.clone()).catch(e=>{
-        console.error("[Service Worker] Failed cashing: " + response);
-      });
-    }
+    const cache = await caches.open(CACHE_NAME);
+    await cache.put(event.request, response.clone()).catch(e=>{
+      console.error("[Service Worker] Failed cashing: " + response);
+    });
     return response
   })());
 });
