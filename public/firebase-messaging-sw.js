@@ -39,24 +39,6 @@ console.log("test1");
 const messaging = firebase.messaging();
 console.log("test2");
 
-messaging.onBackgroundMessage((payload) => {
-  console.log(
-    "[firebase-messaging-sw.js] Received background message ",
-    payload
-  );
-  // Customize notification here
-  const notificationTitle = "Background Message Title";
-  const notificationOptions = {
-    body: "Background Message body.",
-    icon: "/keijiban_harigami_192x192.png",
-  };
-  console.log(self.registration);
-
-  self.registration
-    .showNotification(notificationTitle, notificationOptions)
-    .then((e) => console.log("push notification:", e));
-});
-
 // service-worker.js
 self.addEventListener("install", (event) => {
   console.log("Service worker installing...");
@@ -105,11 +87,40 @@ self.addEventListener("activate", (event) => {
   })());
 });
 
-// self.addEventListener("push", (event) => {
-//   const data = event.data.json(); // プッシュ通知のデータを取得
-//   console.log("Push Notification:", data.message);
-//   self.registration.showNotification(data.title, {
-//     body: data.message,
-//     icon: "/keijiban_harigami_192x192.png",
-//   });
-// });
+messaging.onBackgroundMessage(async (payload) => {
+  console.log(
+    "[firebase-messaging-sw.js] Received background message ",
+    payload
+  );
+  const CACHE_NAME = "app-state-cache";
+  const BADGE_COUNT_URL = "/badge-count.json";
+
+  async function saveBadgeCount(count) {
+    const cache = await caches.open(CACHE_NAME);
+    const updatedContent = new Blob([JSON.stringify({ count })], {
+      type: "application/json",
+    });
+    await cache.put(BADGE_COUNT_URL, new Response(updatedContent));
+  }
+
+  async function getBadgeCount() {
+    const cache = await caches.open(CACHE_NAME);
+    const response = await cache.match(BADGE_COUNT_URL);
+    if (!response) return 0; // キャッシュが存在しない場合は0を返す
+    const data = await response.json();
+    return data.count;
+  }
+
+  if ("setAppBadge" in self.navigator) {
+    try {
+      const currentCount = await getBadgeCount();
+      const newCount = currentCount + 1;
+      await saveBadgeCount(newCount);
+      console.log(newCount);
+
+      await self.navigator.setAppBadge(newCount);
+    } catch (error) {
+      console.error("Error updating app badge:", error);
+    }
+  }
+});
