@@ -42,8 +42,9 @@ body {
 
 .drawing-area {
   display: flex;
+  flex-direction: column;
   align-items: stretch;
   width: 100%;
-  height: 25vh; /* 画面の下1/4の高さ */
+  height: 40vh;
 }
 </style>

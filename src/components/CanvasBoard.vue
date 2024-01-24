@@ -1,15 +1,31 @@
 <template>
-  <canvas
-    ref="canvas"
-    @mousedown="startDrawing"
-    @mousemove="draw"
-    @mouseup="stopDrawing"
-    @mouseout="stopDrawing"
-    @touchstart="startDrawing"
-    @touchmove="draw"
-    @touchend="stopDrawing"
-  ></canvas>
-  <button class="send-button" @click="sendDrawing">送信</button>
+  <div class="stamp-container">
+    <img
+      v-for="stamp in stamps"
+      :src="stamp"
+      :alt="'Stamp ' + stamp"
+      class="stamp"
+      @mousedown="selectStamp(stamp)"
+      draggable="true"
+      width="50px"
+      height="50px"
+    />
+  </div>
+  <div class="canvas-container">
+    <canvas
+      ref="canvas"
+      @mousedown="startDrawing"
+      @mousemove="draw"
+      @mouseup="stopDrawing"
+      @mouseout="stopDrawing"
+      @touchstart="startDrawing"
+      @touchmove="draw"
+      @touchend="stopDrawing"
+      @dragover="dragOverHandler"
+      @drop="dropStamp"
+    ></canvas>
+    <button class="send-button" @click="sendDrawing">送信</button>
+  </div>
 </template>
 
 <script>
@@ -23,6 +39,14 @@ export default {
       canvas: null,
       canvasOffsetX: 0,
       canvasOffsetY: 0,
+      selectedStamp: null,
+      stamps: [
+        "/stamps/flower.png",
+        "/stamps/heart.png",
+        "/stamps/star.png",
+        "/stamps/penguin.png",
+        "/stamps/nssol-logo.png",
+      ],
     };
   },
   mounted() {
@@ -81,14 +105,54 @@ export default {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
       }, "image/png");
     },
+    selectStamp(stamp) {
+      this.selectedStamp = stamp;
+    },
+    dropStamp(evt) {
+      evt.preventDefault();
+      if (!this.selectedStamp) return;
+      const pos = this.getMousePos(this.$refs.canvas, evt);
+      const image = new Image();
+      image.src = this.selectedStamp;
+      console.log(this.context);
+      image.onload = () => {
+        console.log("pos.x", pos.x);
+        console.log("pos.y", pos.y);
+        console.log(image);
+        this.context.drawImage(image, pos.x - 25, pos.y - 25, 50, 50);
+      };
+      image.onerror = (e) => {
+        console.error("Image loading failed:", e);
+      };
+      this.selectedStamp = null; // スタンプの選択をリセット
+    },
+    dragOverHandler(evt) {
+      evt.preventDefault();
+    },
   },
 };
 </script>
 
 <style>
+.stamp-container {
+  height: 50px;
+  min-height: 50px;
+}
+
+.stamp {
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.canvas-container {
+  display: flex;
+  flex-direction: row;
+  height: calc(100% - 60px);
+}
+
 canvas {
   border: solid;
-  height: 100%; /* コンテナに合わせて高さを設定 */
+  height: 100%;
   width: calc(100% - 50px); /* コンテナから送信ボタンの幅を引いた幅 */
 }
 
