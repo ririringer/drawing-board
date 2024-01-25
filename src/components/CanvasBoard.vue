@@ -45,7 +45,6 @@ export default {
         "/stamps/heart.png",
         "/stamps/star.png",
         "/stamps/penguin.png",
-        "/stamps/nssol-logo.png",
       ],
     };
   },
