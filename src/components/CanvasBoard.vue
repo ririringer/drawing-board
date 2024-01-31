@@ -1,30 +1,42 @@
 <template>
-  <div class="stamp-container">
-    <img
-      v-for="stamp in stamps"
-      :src="stamp"
-      :alt="'Stamp ' + stamp"
-      class="stamp"
-      @mousedown="selectStamp(stamp)"
-      draggable="true"
-      width="50px"
-      height="50px"
-    />
+  <div class="on-canvas-area">
+    <div class="stamp-container">
+      <v-avatar v-for="stamp in stamps" size="50" color="white" class="mr-2">
+        <img
+          :src="stamp"
+          :alt="'Stamp ' + stamp"
+          class="stamp"
+          @mousedown="selectStamp(stamp)"
+          draggable="true"
+          width="40px"
+          height="40px"
+        />
+      </v-avatar>
+    </div>
+    <v-btn
+      height="50"
+      width="100"
+      class="send-button"
+      @click="sendDrawing"
+      color="blue darken 2"
+      >送信</v-btn
+    >
   </div>
   <div class="canvas-container">
-    <canvas
-      ref="canvas"
-      @mousedown="startDrawing"
-      @mousemove="draw"
-      @mouseup="stopDrawing"
-      @mouseout="stopDrawing"
-      @touchstart="startDrawing"
-      @touchmove="draw"
-      @touchend="stopDrawing"
-      @dragover="dragOverHandler"
-      @drop="dropStamp"
-    ></canvas>
-    <button class="send-button" @click="sendDrawing">送信</button>
+    <v-card height="100%" width="100%">
+      <canvas
+        ref="canvas"
+        @mousedown="startDrawing"
+        @mousemove="draw"
+        @mouseup="stopDrawing"
+        @mouseout="stopDrawing"
+        @touchstart="startDrawing"
+        @touchmove="draw"
+        @touchend="stopDrawing"
+        @dragover="dragOverHandler"
+        @drop="dropStamp"
+      ></canvas>
+    </v-card>
   </div>
 </template>
 
@@ -50,6 +62,7 @@ export default {
   },
   mounted() {
     this.canvas = this.$refs.canvas;
+    console.log("this.canvas", this.canvas);
     this.setCanvasSize();
     window.addEventListener("resize", () => this.setCanvasSize());
   },
@@ -61,12 +74,19 @@ export default {
       console.log("setCaaaa");
       // 実際の表示サイズに基づいてキャンバスサイズを設定
       const style = window.getComputedStyle(this.canvas);
+      console.log("style.width", style.width);
+      console.log("style.height", style.height);
       this.canvas.width = parseInt(style.width, 10);
       this.canvas.height = parseInt(style.height, 10);
+      console.log("this.canvas.width", this.canvas.width);
+      console.log("this.canvas.height", this.canvas.height);
 
       this.context = this.canvas.getContext("2d");
-      this.canvasOffsetX = this.canvas.offsetLeft;
-      this.canvasOffsetY = this.canvas.offsetTop;
+      const rect = this.canvas.getBoundingClientRect();
+      this.canvasOffsetX = rect.left;
+      this.canvasOffsetY = rect.top;
+      console.log("this.canvasOffsetX", this.canvasOffsetX);
+      console.log("this.canvasOffsetY", this.canvasOffsetY);
       console.log("this.context");
       console.log(this.context);
     },
@@ -85,6 +105,8 @@ export default {
       console.log(this.context);
       this.context.beginPath();
       const pos = this.getMousePos(this.$refs.canvas, evt);
+      console.log("pos.x", pos.x);
+      console.log("pos.y", pos.y);
       this.context.moveTo(pos.x, pos.y);
     },
     draw(evt) {
@@ -133,31 +155,35 @@ export default {
 </script>
 
 <style>
+.on-canvas-area {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  background-color: rgba(173, 216, 230, 0.3);
+}
+
 .stamp-container {
   height: 50px;
   min-height: 50px;
 }
 
 .stamp {
-  margin-right: 10px;
   cursor: pointer;
 }
 
 .canvas-container {
   display: flex;
   flex-direction: row;
-  height: calc(100% - 60px);
+  height: calc(100% - 70px);
 }
 
 canvas {
-  border: solid;
   height: 100%;
-  width: calc(100% - 50px); /* コンテナから送信ボタンの幅を引いた幅 */
+  width: 100%;
 }
 
-.send-button {
-  flex-shrink: 0;
-  height: 100%; /* キャンバスと同じ高さ */
-  width: 50px; /* 幅は固定 */
+.canvas-and-image-color {
+  background-color: rgba(173, 216, 230, 0.3);
 }
 </style>

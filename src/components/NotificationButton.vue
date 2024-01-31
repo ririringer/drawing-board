@@ -1,5 +1,14 @@
 <template>
-  <button @click="requestNotificationPermission">通知を許可</button>
+  <v-btn
+    variant="outlined"
+    size="large"
+    color="white"
+    rounded="xl"
+    class="font-weight-bold"
+    @click="requestNotificationPermission"
+  >
+    通知
+  </v-btn>
 </template>
 
 <script>

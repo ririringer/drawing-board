@@ -1,13 +1,21 @@
 <template>
-  <div id="app">
-    <Gallery />
-    <div class="input-area">
+  <v-app>
+    <v-app-bar app color="blue-darken-2" dark>
+      <v-toolbar-title>お絵かき掲示板</v-toolbar-title>
       <NotificationButton />
-      <div class="drawing-area">
-        <CanvasBoard />
+    </v-app-bar>
+    <v-container class="pa-2 bg-blue-lighten-4">
+      <div id="app">
+        <Gallery />
+        <v-divider></v-divider>
+        <div class="input-area">
+          <div class="drawing-area">
+            <CanvasBoard />
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
+    </v-container>
+  </v-app>
 </template>
 
 <script>
@@ -41,6 +49,7 @@ body {
 }
 
 .drawing-area {
+  padding-top: 5px;
   display: flex;
   flex-direction: column;
   align-items: stretch;

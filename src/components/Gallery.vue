@@ -1,12 +1,8 @@
 <template>
   <div class="gallery" ref="gallery">
-    <img
-      v-for="url in imageUrls"
-      :key="url"
-      :src="url"
-      class="image"
-      @load="onImageLoad"
-    />
+    <v-card v-for="url in imageUrls" class="my-2">
+      <img :key="url" :src="url" class="image" @load="onImageLoad" />
+    </v-card>
   </div>
 </template>
 
@@ -69,6 +65,8 @@ export default {
 }
 .image {
   /* 画像スタイル */
-  border: solid;
+  width: 100%;
+  height: auto;
+  max-width: 800px;
 }
 </style>
