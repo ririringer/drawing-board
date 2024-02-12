@@ -1,9 +1,7 @@
-const FETCH_CACHE_PREFIX = 'firebase-messaging-sw_'
-const FETCH_CACHE_VERSION = '013';
+const FETCH_CACHE_PREFIX = "firebase-messaging-sw_";
+const FETCH_CACHE_VERSION = "014";
 const FETCH_CACHE_NAME = FETCH_CACHE_PREFIX + FETCH_CACHE_VERSION;
-const contentToCache = [
-  "/",
-];
+const contentToCache = ["/"];
 
 importScripts("https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js");
 importScripts(
@@ -43,48 +41,54 @@ console.log("test2");
 self.addEventListener("install", (event) => {
   console.log("Service worker installing...");
   // キャッシュの初期化
-  event.waitUntil((async () => {
-    const cache = await caches.open(FETCH_CACHE_NAME)
-    console.log("[Service Worker] Caching all: app shell and content");
-    return cache.addAll(contentToCache);
-  })());
+  event.waitUntil(
+    (async () => {
+      const cache = await caches.open(FETCH_CACHE_NAME);
+      console.log("[Service Worker] Caching all: app shell and content");
+      return cache.addAll(contentToCache);
+    })()
+  );
 });
 
 self.addEventListener("fetch", (event) => {
   // GET 以外のリクエストでは、ブラウザーに既定のことをさせる
   if (event.request.method !== "GET") return;
 
-  event.respondWith((async () => {
-    const cachedResponse = await caches.match(event.request);
-    if (cachedResponse) {
-      console.log("[Service Worker] Return from cash: " + event.request.url);
-      return cachedResponse;
-    }
+  event.respondWith(
+    (async () => {
+      const cachedResponse = await caches.match(event.request);
+      if (cachedResponse) {
+        console.log("[Service Worker] Return from cash: " + event.request.url);
+        return cachedResponse;
+      }
 
-    const response = await fetch(event.request).catch((error) => {
-      console.error(`[Service Worker] Fetching failed: ${error}`);
-    });
-    const cache = await caches.open(FETCH_CACHE_NAME);
-    await cache.put(event.request, response.clone()).catch(e=>{
-      console.error("[Service Worker] Failed cashing: " + response);
-    });
-    return response
-  })());
+      const response = await fetch(event.request).catch((error) => {
+        console.error(`[Service Worker] Fetching failed: ${error}`);
+      });
+      const cache = await caches.open(FETCH_CACHE_NAME);
+      await cache.put(event.request, response.clone()).catch((e) => {
+        console.error("[Service Worker] Failed cashing: " + response);
+      });
+      return response;
+    })()
+  );
 });
 
 self.addEventListener("activate", (event) => {
   console.log("Service worker activating...");
-  event.waitUntil((async () => {
-    const keyList = await caches.keys()
-    return Promise.all(
-      keyList.map((key) => {
-        if (key.startsWith(FETCH_CACHE_PREFIX) && key !== FETCH_CACHE_NAME) {
-          console.log("[Service Worker] delete unused cash: " + key);
-          return caches.delete(key);
-        }
-      }),
-    );
-  })());
+  event.waitUntil(
+    (async () => {
+      const keyList = await caches.keys();
+      return Promise.all(
+        keyList.map((key) => {
+          if (key.startsWith(FETCH_CACHE_PREFIX) && key !== FETCH_CACHE_NAME) {
+            console.log("[Service Worker] delete unused cash: " + key);
+            return caches.delete(key);
+          }
+        })
+      );
+    })()
+  );
 });
 
 messaging.onBackgroundMessage(async (payload) => {

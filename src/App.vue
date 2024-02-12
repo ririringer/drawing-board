@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-app-bar app color="blue-darken-2" dark>
-      <v-toolbar-title>お絵かき掲示板</v-toolbar-title>
+      <v-toolbar-title>お絵かき掲示板ver0.1.4</v-toolbar-title>
       <NotificationButton />
     </v-app-bar>
     <v-container class="pa-2 bg-blue-lighten-4">
