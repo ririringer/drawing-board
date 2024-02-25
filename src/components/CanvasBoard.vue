@@ -65,6 +65,35 @@ export default {
     console.log("this.canvas", this.canvas);
     this.setCanvasSize();
     window.addEventListener("resize", () => this.setCanvasSize());
+
+    // スタンプ要素に対するタッチイベントリスナーを追加
+    this.stamps.forEach((stamp, index) => {
+      const stampElement = document.querySelector(
+        `.stamp[data-index="${index}"]`
+      );
+      stampElement.addEventListener("touchstart", (e) => {
+        e.preventDefault(); // デフォルトの動作を防止
+        this.selectStamp(stamp);
+      });
+    });
+    // キャンバスにタッチイベントリスナーを追加
+    this.canvas.addEventListener("touchmove", (e) => {
+      if (!this.selectedStamp) return; // スタンプが選択されていなければ何もしない
+      e.preventDefault(); // デフォルトの動作を防止
+
+      const touch = e.touches[0];
+      const pos = this.getMousePos(this.canvas, touch);
+      // スタンプのプレビューを表示するロジックをここに追加
+      // 注: 実際には、プレビューの描画と削除を繰り返す必要があります
+    });
+    this.canvas.addEventListener("touchend", (e) => {
+      if (!this.selectedStamp) return; // スタンプが選択されていなければ何もしない
+      e.preventDefault(); // デフォルトの動作を防止
+
+      // スタンプを描画するロジックをここに追加
+      this.dropStamp(e.changedTouches[0]); // dropStampを適応させる場合
+      console.log("touchend happened");
+    });
   },
   beforeUnmount() {
     window.removeEventListener("resize", this.setCanvasSize);
@@ -98,6 +127,8 @@ export default {
       };
     },
     startDrawing(evt) {
+      // スマホでキャンバスをタッチした時にスクロールすることを防ぐ
+      evt.preventDefault();
       // タッチイベントの場合、最初のタッチポイントを取得
       if (evt.touches) evt = evt.touches[0];
       this.drawing = true;
@@ -110,6 +141,8 @@ export default {
       this.context.moveTo(pos.x, pos.y);
     },
     draw(evt) {
+      // スマホでキャンバスを動かした時にスクロールすることを防ぐ
+      evt.preventDefault();
       if (!this.drawing) return;
       if (evt.touches) evt = evt.touches[0];
       const pos = this.getMousePos(this.$refs.canvas, evt);
@@ -132,7 +165,17 @@ export default {
     dropStamp(evt) {
       evt.preventDefault();
       if (!this.selectedStamp) return;
-      const pos = this.getMousePos(this.$refs.canvas, evt);
+      let clientX, clientY;
+      // イベントタイプがタッチイベントの場合、タッチポイントから座標を取得
+      if (evt.type === "touchend" && evt.changedTouches.length > 0) {
+        clientX = evt.changedTouches[0].clientX;
+        clientY = evt.changedTouches[0].clientY;
+      } else {
+        // マウスイベントの場合、通常の座標を使用
+        clientX = evt.clientX;
+        clientY = evt.clientY;
+      }
+      const pos = this.getMousePos(this.canvas, { clientX, clientY });
       const image = new Image();
       image.src = this.selectedStamp;
       console.log(this.context);
