@@ -8,7 +8,7 @@
       <div id="app">
         <Gallery />
         <v-divider></v-divider>
-        <div class="input-area">
+        <div class="input-area" @touchmove.prevent>
           <div class="drawing-area">
             <CanvasBoard />
           </div>
@@ -31,6 +31,20 @@ export default {
     NotificationButton,
   },
 };
+
+// document.addEventListener("DOMContentLoaded", function () {
+//   var disableScrollOnDrawingArea = function (e) {
+//     // .drawing-area 内での touchmove イベントを検出
+//     if (e.target.closest(".drawing-area")) {
+//       e.preventDefault();
+//     }
+//   };
+
+//   // touchmove イベントに対して、条件付きでデフォルト動作を防止
+//   document.addEventListener("touchmove", disableScrollOnDrawingArea, {
+//     passive: false,
+//   });
+// });
 </script>
 
 <style>
@@ -55,5 +69,6 @@ body {
   align-items: stretch;
   width: 100%;
   height: 40vh;
+  overflow: hidden;
 }
 </style>
