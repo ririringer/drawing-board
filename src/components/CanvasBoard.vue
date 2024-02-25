@@ -1,24 +1,27 @@
 <template>
   <div class="on-canvas-area">
     <div class="stamp-container">
-      <v-avatar v-for="stamp in stamps" size="50" color="white" class="mr-2">
+      <v-avatar
+        v-for="stamp in stamps"
+        size="50"
+        color="white"
+        :class="{
+          highlight: selectedStamp === stamp,
+          'gray-out': selectedStamp !== null && selectedStamp !== stamp,
+        }"
+        class="mr-2"
+      >
         <img
           :src="stamp"
           :alt="'Stamp ' + stamp"
           class="stamp"
-          @mousedown="selectStamp(stamp)"
-          draggable="true"
           width="40px"
           height="40px"
+          @click="selectStamp(stamp)"
         />
       </v-avatar>
     </div>
-    <v-btn
-      height="50"
-      width="100"
-      class="send-button"
-      @click="sendDrawing"
-      color="blue darken 2"
+    <v-btn height="50" width="100" class="send-button" color="blue darken 2"
       >送信</v-btn
     >
   </div>
@@ -34,7 +37,6 @@
         @touchmove="draw"
         @touchend="stopDrawing"
         @dragover="dragOverHandler"
-        @drop="dropStamp"
       ></canvas>
     </v-card>
   </div>
@@ -52,6 +54,7 @@ export default {
       canvasOffsetX: 0,
       canvasOffsetY: 0,
       selectedStamp: null,
+      isStampMode: false,
       stamps: [
         "/stamps/flower.png",
         "/stamps/heart.png",
@@ -65,35 +68,6 @@ export default {
     console.log("this.canvas", this.canvas);
     this.setCanvasSize();
     window.addEventListener("resize", () => this.setCanvasSize());
-
-    // スタンプ要素に対するタッチイベントリスナーを追加
-    this.stamps.forEach((stamp, index) => {
-      const stampElement = document.querySelector(
-        `.stamp[data-index="${index}"]`
-      );
-      stampElement.addEventListener("touchstart", (e) => {
-        e.preventDefault(); // デフォルトの動作を防止
-        this.selectStamp(stamp);
-      });
-    });
-    // キャンバスにタッチイベントリスナーを追加
-    this.canvas.addEventListener("touchmove", (e) => {
-      if (!this.selectedStamp) return; // スタンプが選択されていなければ何もしない
-      e.preventDefault(); // デフォルトの動作を防止
-
-      const touch = e.touches[0];
-      const pos = this.getMousePos(this.canvas, touch);
-      // スタンプのプレビューを表示するロジックをここに追加
-      // 注: 実際には、プレビューの描画と削除を繰り返す必要があります
-    });
-    this.canvas.addEventListener("touchend", (e) => {
-      if (!this.selectedStamp) return; // スタンプが選択されていなければ何もしない
-      e.preventDefault(); // デフォルトの動作を防止
-
-      // スタンプを描画するロジックをここに追加
-      this.dropStamp(e.changedTouches[0]); // dropStampを適応させる場合
-      console.log("touchend happened");
-    });
   },
   beforeUnmount() {
     window.removeEventListener("resize", this.setCanvasSize);
@@ -131,6 +105,11 @@ export default {
       evt.preventDefault();
       // タッチイベントの場合、最初のタッチポイントを取得
       if (evt.touches) evt = evt.touches[0];
+      // スタンプモードの場合、スタンプ処理のみ行う
+      if (this.isStampMode && this.selectedStamp) {
+        this.placeStamp(evt);
+        return;
+      }
       this.drawing = true;
       console.log("beginpath called");
       console.log(this.context);
@@ -160,22 +139,18 @@ export default {
       }, "image/png");
     },
     selectStamp(stamp) {
-      this.selectedStamp = stamp;
-    },
-    dropStamp(evt) {
-      evt.preventDefault();
-      if (!this.selectedStamp) return;
-      let clientX, clientY;
-      // イベントタイプがタッチイベントの場合、タッチポイントから座標を取得
-      if (evt.type === "touchend" && evt.changedTouches.length > 0) {
-        clientX = evt.changedTouches[0].clientX;
-        clientY = evt.changedTouches[0].clientY;
+      if (this.selectedStamp === stamp) {
+        // 同じ画像が再選択された場合、線の描画モードに切り替え
+        this.isStampMode = false;
+        this.selectedStamp = null;
       } else {
-        // マウスイベントの場合、通常の座標を使用
-        clientX = evt.clientX;
-        clientY = evt.clientY;
+        // 新しい画像が選択された場合、その画像を選択状態にし、線の描画を無効に
+        this.isStampMode = true;
+        this.selectedStamp = stamp;
       }
-      const pos = this.getMousePos(this.canvas, { clientX, clientY });
+    },
+    placeStamp(evt) {
+      const pos = this.getMousePos(this.canvas, evt);
       const image = new Image();
       image.src = this.selectedStamp;
       console.log(this.context);
@@ -188,11 +163,13 @@ export default {
       image.onerror = (e) => {
         console.error("Image loading failed:", e);
       };
-      this.selectedStamp = null; // スタンプの選択をリセット
+      // 画像配置後、状態をリセット
+      this.selectedStamp = null;
+      this.isStampMode = false;
     },
-    dragOverHandler(evt) {
-      evt.preventDefault();
-    },
+  },
+  dragOverHandler(evt) {
+    evt.preventDefault();
   },
 };
 </script>
@@ -228,5 +205,13 @@ canvas {
 
 .canvas-and-image-color {
   background-color: rgba(173, 216, 230, 0.3);
+}
+
+.highlight {
+  border: 5px solid yellow;
+}
+
+.gray-out {
+  opacity: 0.3;
 }
 </style>

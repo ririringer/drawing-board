@@ -1,5 +1,5 @@
 const FETCH_CACHE_PREFIX = "firebase-messaging-sw_";
-const FETCH_CACHE_VERSION = "015";
+const FETCH_CACHE_VERSION = "016";
 const FETCH_CACHE_NAME = FETCH_CACHE_PREFIX + FETCH_CACHE_VERSION;
 const contentToCache = ["/"];
 
