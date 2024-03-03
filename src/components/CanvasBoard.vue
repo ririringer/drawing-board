@@ -21,7 +21,12 @@
         />
       </v-avatar>
     </div>
-    <v-btn height="50" width="100" class="send-button" color="blue darken 2"
+    <v-btn
+      height="50"
+      width="100"
+      class="send-button"
+      @click="sendDrawing"
+      color="blue darken 2"
       >送信</v-btn
     >
   </div>
